@@ -78,8 +78,13 @@ class AssessmentViewSet(viewsets.ViewSet):
             import logging
             logger = logging.getLogger(__name__)
             logger.error('ML service call failed: %s', str(exc))
+            
+            error_details = str(exc)
+            if hasattr(exc, 'response') and exc.response is not None:
+                error_details += f" | Response: {exc.response.text}"
+                
             return Response(
-                {'detail': 'ML prediction service is currently unavailable.'},
+                {'detail': f'ML prediction service failed: {error_details}'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 

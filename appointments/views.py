@@ -48,5 +48,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             },
         )
 
-        from appointments.tasks import send_appointment_email
-        send_appointment_email.delay(appointment.id)
+        try:
+            from appointments.tasks import send_appointment_email
+            send_appointment_email.delay(appointment.id)
+        except Exception as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning('Failed to queue appointment email for %s: %s', appointment.id, str(exc))
