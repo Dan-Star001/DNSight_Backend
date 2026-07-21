@@ -215,8 +215,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 frontend_url = os.environ.get('FRONTEND_URL')
-FRONTEND_URL = frontend_url
 if frontend_url:
+    # Strip any trailing slashes to prevent strict CORS origin mismatches
+    frontend_url = frontend_url.rstrip('/')
+    FRONTEND_URL = frontend_url
     CORS_ALLOWED_ORIGINS.append(frontend_url)
 
 CORS_ALLOW_CREDENTIALS = True
