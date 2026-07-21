@@ -8,15 +8,11 @@ Tasks:
     a clinical treatment recommendation and writes it back to the Assessment.
 """
 
-import logging
-
 import requests
 from celery import shared_task
 from django.conf import settings
 from google import genai
 from google.genai import types
-
-logger = logging.getLogger(__name__)
 
 MAX_RETRIES = 3
 RETRY_BACKOFF = True
@@ -47,10 +43,6 @@ def generate_ai_treatment_suggestion(self, assessment_id: int):
             .get(id=assessment_id)
         )
     except Assessment.DoesNotExist:
-        logger.error(
-            'Assessment %s not found — skipping LLM suggestion.',
-            assessment_id,
-        )
         return
 
     # 2. Build the clinical context prompt
@@ -107,23 +99,12 @@ def generate_ai_treatment_suggestion(self, assessment_id: int):
         suggestion = response.text
         
         if not suggestion:
-            logger.warning('Empty LLM response for assessment %s.', assessment_id)
             suggestion = "Error: The AI model returned an empty response."
 
     except Exception as exc:
-        logger.warning(
-            'LLM API call failed for assessment %s: %s',
-            assessment_id,
-            str(exc),
-        )
         suggestion = f"Failed to generate AI suggestion. Error: {str(exc)}"
 
     # 4. Persist the suggestion — atomic field update
     Assessment.objects.filter(id=assessment_id).update(
         ai_treatment_suggestion=suggestion,
-    )
-
-    logger.info(
-        'Successfully generated AI treatment suggestion for assessment %s.',
-        assessment_id,
     )

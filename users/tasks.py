@@ -43,10 +43,11 @@ def send_doctor_status_email(self, email, name, status):
         """
         if status == 'ACTIVE':
             subject = 'Account Approved'
+            frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
             message = (
                 f'Hello Dr. {name},\n\n'
                 'Great news! Your DNSight account has been approved by an administrator. '
-                'You can now log in and access your dashboard.\n\n'
+                f'You can now log in and access your dashboard at {frontend_url}.\n\n'
                 'Best regards,\nThe DNSight Team'
             )
         elif status == 'REJECTED':

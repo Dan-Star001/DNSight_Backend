@@ -5,8 +5,6 @@ Admin-only endpoints for managing doctors and viewing hospital-wide analytics.
 All queries are implicitly scoped to the admin's hospital_id.
 """
 
-import logging
-
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db import transaction
@@ -23,8 +21,6 @@ from assessments.models import Assessment
 from patients.models import Patient
 from users.permissions import IsAdmin
 from users.serializers import UserSerializer
-
-logger = logging.getLogger(__name__)
 
 User = get_user_model()
 

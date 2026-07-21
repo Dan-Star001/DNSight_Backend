@@ -4,8 +4,6 @@ Assessments — DRF Views
 ML prediction requests, patient assessment history, and clinician feedback.
 """
 
-import logging
-
 import requests as http_client
 from django.conf import settings
 from django.core.cache import cache
@@ -23,8 +21,6 @@ from assessments.serializers import (
 )
 from assessments.tasks import generate_ai_treatment_suggestion
 from users.permissions import IsActiveUser
-
-logger = logging.getLogger(__name__)
 
 # Cache key template — shared with hospitals.views
 CACHE_KEY_ADMIN_STATS = 'admin_stats_hospital_{hospital_id}'
@@ -74,12 +70,11 @@ class AssessmentViewSet(viewsets.ViewSet):
             ml_response = http_client.post(
                 f'{ml_service_url}/predict',
                 json=ml_payload,
-                timeout=15,
+                timeout=60,
             )
             ml_response.raise_for_status()
             ml_result = ml_response.json()
         except http_client.exceptions.RequestException as exc:
-            logger.error('ML service call failed: %s', str(exc))
             return Response(
                 {'detail': 'ML prediction service is currently unavailable.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -105,11 +100,7 @@ class AssessmentViewSet(viewsets.ViewSet):
         try:
             generate_ai_treatment_suggestion.delay(assessment.id)
         except Exception as exc:
-            logger.warning(
-                'Failed to enqueue LLM task for assessment %s: %s',
-                assessment.id,
-                str(exc),
-            )
+            pass
 
         log_action(
             request,

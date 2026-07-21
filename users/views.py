@@ -45,10 +45,8 @@ class AdminRegistrationView(APIView):
             logo_file = request.FILES.get('logo')
             logo_url = None
             if logo_file:
-                import logging
                 import cloudinary.uploader
                 from rest_framework.exceptions import ValidationError
-                logger = logging.getLogger(__name__)
                 try:
                     upload_result = cloudinary.uploader.upload(
                         logo_file,
@@ -57,9 +55,7 @@ class AdminRegistrationView(APIView):
                         timeout=10,
                     )
                     logo_url = upload_result.get('secure_url')
-                    logger.info('Cloudinary upload succeeded: %s', logo_url)
                 except Exception as e:
-                    logger.error('Cloudinary upload failed: %s', str(e))
                     raise ValidationError({'logo': f'Image upload failed: {str(e)}'})
 
             hospital = Hospital.objects.create(
