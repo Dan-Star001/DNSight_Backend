@@ -70,7 +70,7 @@ class AssessmentViewSet(viewsets.ViewSet):
             ml_response = http_client.post(
                 f'{ml_service_url}/predict',
                 json=ml_payload,
-                timeout=60,
+                timeout=180,
             )
             ml_response.raise_for_status()
             ml_result = ml_response.json()
