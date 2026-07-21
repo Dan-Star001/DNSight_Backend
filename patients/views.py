@@ -5,6 +5,8 @@ Full CRUD for patients with multi-tenant isolation, search, and pagination.
 """
 
 from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -64,6 +66,16 @@ class PatientViewSet(viewsets.ModelViewSet):
                 .first()
             )
         return obj
+
+    @method_decorator(cache_page(60))
+    def list(self, request, *args, **kwargs):
+        """Cached patient table (60 seconds)."""
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60))
+    def retrieve(self, request, *args, **kwargs):
+        """Cached patient profile modal (60 seconds)."""
+        return super().retrieve(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         """Auto-set the hospital from the authenticated user."""

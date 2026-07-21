@@ -241,12 +241,21 @@ CELERY_TASK_TIME_LIMIT = 120  # Hard kill after 2 minutes
 # Caching (LocMem for dev — swap to Redis in production)
 # =============================================================================
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'dnsight-cache',
+redis_url = os.environ.get('CELERY_BROKER_URL')  # Reuse the Valkey/Redis URL
+if redis_url:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': redis_url,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'dnsight-cache',
+        }
+    }
 
 
 # =============================================================================
