@@ -75,6 +75,9 @@ class AssessmentViewSet(viewsets.ViewSet):
             ml_response.raise_for_status()
             ml_result = ml_response.json()
         except http_client.exceptions.RequestException as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error('ML service call failed: %s', str(exc))
             return Response(
                 {'detail': 'ML prediction service is currently unavailable.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
