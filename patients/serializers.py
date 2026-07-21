@@ -21,7 +21,7 @@ class PatientListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'first_name', 'last_name', 'date_of_birth',
             'gender', 'email', 'phone_number', 'status', 'primary_doctor', 'doctor_name',
-            'created_at', 'assessments',
+            'created_at', 'assessments', 'medical_history'
         ]
         read_only_fields = ['id', 'created_at']
 
