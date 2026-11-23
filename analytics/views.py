@@ -34,12 +34,10 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
             )
         )
 
-    @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
-        """Cached report page (60 seconds)."""
+        """Tenant-scoped audit log list."""
         return super().list(request, *args, **kwargs)
 
-    @method_decorator(cache_page(60))
     def retrieve(self, request, *args, **kwargs):
-        """Cached report profile modal (60 seconds)."""
+        """Tenant-scoped audit log detail."""
         return super().retrieve(request, *args, **kwargs)

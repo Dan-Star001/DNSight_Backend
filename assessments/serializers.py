@@ -22,7 +22,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'patient', 'patient_name', 'doctor', 'doctor_name',
             'clinical_data', 'risk_score', 'risk_level',
-            'knn_score', 'gnb_score',
+            'knn_score', 'gnb_score', 'lr_score',
             'prediction_confidence', 'ai_treatment_suggestion',
             'confirmed_outcome', 'created_at',
         ]
@@ -70,6 +70,21 @@ class PredictionInputSerializer(serializers.Serializer):
                     'Patient not found in your hospital.'
                 )
         return value
+
+    def validate(self, data):
+        """Cross-field and domain validation for clinical measurements."""
+        age = data.get('AGE')
+        onset_age = data.get('ONSET_AGE')
+        if age is not None and age <= 0:
+            raise serializers.ValidationError({'AGE': 'Age must be positive.'})
+        if onset_age is not None and onset_age < 0:
+            raise serializers.ValidationError({'ONSET_AGE': 'Onset age cannot be negative.'})
+        if age is not None and onset_age is not None:
+            if onset_age > age:
+                raise serializers.ValidationError({
+                    'ONSET_AGE': "Age at diabetes onset cannot exceed the patient's current age."
+                })
+        return data
 
 
 class FeedbackSerializer(serializers.Serializer):

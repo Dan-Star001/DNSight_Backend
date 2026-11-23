@@ -92,6 +92,7 @@ class AssessmentViewSet(viewsets.ViewSet):
         confidence = ml_result.get('probability', 0)
         knn_score = ml_result.get('knn_score')
         gnb_score = ml_result.get('gnb_score')
+        lr_score = ml_result.get('lr_score')
         risk_level = Assessment.compute_risk_level(risk_score)
 
         assessment = Assessment.objects.create(
@@ -103,6 +104,7 @@ class AssessmentViewSet(viewsets.ViewSet):
             prediction_confidence=confidence,
             knn_score=knn_score,
             gnb_score=gnb_score,
+            lr_score=lr_score,
         )
 
         try:

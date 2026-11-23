@@ -1,3 +1,4 @@
+import logging
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
@@ -8,16 +9,23 @@ from assessments.models import Assessment
 from appointments.models import Appointment
 from hospitals.views import CACHE_KEY_ADMIN_STATS
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
 def clear_hospital_cache(hospital_id):
     if hospital_id:
-        cache.delete(CACHE_KEY_ADMIN_STATS.format(hospital_id=hospital_id))
+        try:
+            cache.delete(CACHE_KEY_ADMIN_STATS.format(hospital_id=hospital_id))
+        except Exception as exc:
+            logger.warning(f"Failed to clear hospital cache for {hospital_id}: {exc}")
 
 def clear_doctor_cache(doctor_id):
     if doctor_id:
-        cache.delete(f'doctor_stats_{doctor_id}')
+        try:
+            cache.delete(f'doctor_stats_{doctor_id}')
+        except Exception as exc:
+            logger.warning(f"Failed to clear doctor cache for {doctor_id}: {exc}")
 
 
 @receiver([post_save, post_delete], sender=User)

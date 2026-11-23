@@ -67,14 +67,12 @@ class PatientViewSet(viewsets.ModelViewSet):
             )
         return obj
 
-    @method_decorator(cache_page(60))
     def list(self, request, *args, **kwargs):
-        """Cached patient table (60 seconds)."""
+        """Tenant-scoped patient table."""
         return super().list(request, *args, **kwargs)
 
-    @method_decorator(cache_page(60))
     def retrieve(self, request, *args, **kwargs):
-        """Cached patient profile modal (60 seconds)."""
+        """Tenant-scoped patient profile detail."""
         return super().retrieve(request, *args, **kwargs)
 
     def perform_create(self, serializer):

@@ -15,10 +15,9 @@ class Assessment(models.Model):
     and an optional AI-generated treatment suggestion."""
 
     RISK_LEVEL_CHOICES = [
-        ('LOW', 'Low'),
-        ('MODERATE', 'Moderate'),
-        ('HIGH', 'High'),
-        ('VERY_HIGH', 'Very High'),
+        ('LOW', 'Low Risk'),
+        ('MEDIUM', 'Medium Risk'),
+        ('HIGH', 'High Risk'),
     ]
     OUTCOME_CHOICES = [
         ('PENDING', 'Pending'),
@@ -61,6 +60,11 @@ class Assessment(models.Model):
         blank=True,
         help_text='Gaussian Naive Bayes model risk score (0-100).',
     )
+    lr_score = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Logistic Regression model risk score (0-100).',
+    )
     ai_treatment_suggestion = models.TextField(
         blank=True,
         null=True,
@@ -82,13 +86,14 @@ class Assessment(models.Model):
 
     @staticmethod
     def compute_risk_level(risk_score: float) -> str:
-        """Deterministic mapping from a 0-100 risk score to a categorical
-        risk level label."""
-        if risk_score < 25:
+        """Deterministic mapping to three clinical risk tiers:
+        - LOW: < 30% (Routine annual surveillance)
+        - MEDIUM: 30% - 70% (Increased clinical surveillance, 3-month follow-up)
+        - HIGH: >= 70% (Immediate clinical attention, 10g monofilament / NCS)
+        """
+        if risk_score < 30.0:
             return 'LOW'
-        elif risk_score < 50:
-            return 'MODERATE'
-        elif risk_score < 75:
-            return 'HIGH'
+        elif risk_score < 70.0:
+            return 'MEDIUM'
         else:
-            return 'VERY_HIGH'
+            return 'HIGH'
